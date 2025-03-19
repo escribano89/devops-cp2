@@ -143,9 +143,9 @@ resource "azurerm_linux_virtual_machine" "vm" {
   # Selección de la imagen del sistema operativo
   source_image_reference {
     publisher = "Canonical"
-    offer     = "UbuntuServer"
-    sku       = "19_10-daily-gen2"
-    version   = "19.10.202007100"
+    offer     = "0001-com-ubuntu-server-jammy-daily"
+    sku       = "22_04-daily-lts-gen2"
+    version   = "latest"
   }
 }
 

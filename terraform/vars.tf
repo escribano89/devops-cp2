@@ -14,7 +14,7 @@ variable "resource_group_name" {
 }
 
 variable "azure_region" {
-  default = "Spain Central"
+  default = "West Europe"
 }
 
 variable "project_name" {

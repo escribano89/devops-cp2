@@ -1,0 +1,55 @@
+# Terraform
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+.terraform/
+.terraform.lock.hcl
+crash.log
+override.tf
+override.tf.json
+terraform.tfvars
+terraform.tfvars.json
+
+# Ansible
+*.retry
+*.log
+*.vault_pass
+!group_vars/
+!host_vars/
+!inventory/
+
+# General Ignore for SSH Keys and Secrets
+id_rsa
+id_rsa.pub
+*.pem
+*.key
+*.crt
+*.csr
+*.pfx
+
+# Editor and OS-specific files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*.bak
+*.tmp
+
+# Python (if Ansible has custom scripts)
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+*.egg-info/
+
+# Logs and temporary files
+logs/
+*.log
+tmp/
+.cache/
+
+# Cloud provider credentials
+.aws/
+.gcp/
+.azure/

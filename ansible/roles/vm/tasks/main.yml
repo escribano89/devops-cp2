@@ -1,0 +1,83 @@
+- name: Ensure Podman is installed (Ubuntu)
+  apt:
+    name: podman
+    update_cache: yes
+    state: present
+  become: yes
+
+- name: Install Apache utils (for htpasswd) and OpenSSL
+  apt:
+    name: 
+      - apache2-utils
+      - openssl
+    state: present
+  become: yes
+
+- name: Login to ACR from VM (Podman)
+  containers.podman.podman_login:
+    registry: "{{ acr_login_server }}"
+    username: "{{ acr_username }}"
+    password: "{{ acr_password }}"
+  become: yes
+
+- name: Create directory for Nginx config and certs
+  file:
+    path: /opt/nginx
+    state: directory
+    owner: root
+    mode: '0755'
+  become: yes
+
+- name: Generate self-signed SSL certificate for Nginx
+  shell: |
+    openssl req -x509 -nodes -newkey rsa:2048 -days 365 \
+      -subj "/CN={{ ansible_fqdn | default('localhost') }}" \
+      -keyout /opt/nginx/nginx.key -out /opt/nginx/nginx.crt
+  args:
+    creates: /opt/nginx/nginx.crt
+  become: yes
+
+- name: Create htpasswd file for basic auth
+  shell: htpasswd -bc /opt/nginx/.htpasswd "{{ web_username }}" "{{ web_password }}"
+  args:
+    creates: /opt/nginx/.htpasswd
+  become: yes
+
+- name: Deploy Nginx config with SSL and Basic Auth
+  copy:
+    dest: /opt/nginx/default.conf
+    owner: root
+    mode: '0644'
+    content: |
+      server {
+        listen 80;
+        listen 443 ssl;
+        server_name _;
+        ssl_certificate /etc/nginx/certs/nginx.crt;
+        ssl_certificate_key /etc/nginx/certs/nginx.key;
+        ssl_protocols TLSv1.2 TLSv1.3;
+        ssl_ciphers HIGH:!aNULL:!MD5;
+        location / {
+          auth_basic "Protected Area";
+          auth_basic_user_file /etc/nginx/.htpasswd;
+          root /usr/share/nginx/html;
+          try_files $uri $uri/ =404;
+        }
+      }
+  become: yes
+
+- name: Run Nginx container with SSL and Basic Auth
+  containers.podman.podman_container:
+    name: nginx-web
+    image: "{{ acr_login_server}}/nginx:latest"
+    state: started
+    restart_policy: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volume:
+      - "/opt/nginx/default.conf:/etc/nginx/conf.d/default.conf:Z"
+      - "/opt/nginx/.htpasswd:/etc/nginx/.htpasswd:Z"
+      - "/opt/nginx/nginx.crt:/etc/nginx/certs/nginx.crt:Z"
+      - "/opt/nginx/nginx.key:/etc/nginx/certs/nginx.key:Z"
+  become: yes

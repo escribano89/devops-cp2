@@ -1,0 +1,59 @@
+- name: Login to Azure Container Registry
+  containers.podman.podman_login:
+    registry: "{{ acr_login_server }}"
+    username: "{{ acr_username }}"
+    password: "{{ acr_password }}"
+
+- name: Pull Nginx image from Docker Hub
+  containers.podman.podman_image:
+    name: docker.io/library/nginx:latest
+    state: present
+
+- name: Tag Nginx image for ACR
+  containers.podman.podman_tag:
+    image: docker.io/library/nginx:latest
+    target_names:
+      - "{{ acr_login_server }}/nginx:latest"
+
+- name: Push Nginx image to ACR
+  containers.podman.podman_image:
+    name: "{{ acr_login_server }}/nginx:latest"
+    push: yes
+    push_args:
+      dest: "{{ acr_login_server }}/nginx:latest"
+
+- name: Pull Azure Vote Frontend from Docker Hub
+  containers.podman.podman_image:
+    name: docker.io/fernandezsalazarnieve/azure-vote-front:v1
+    state: present
+
+- name: Tag Azure Vote Frontend for ACR
+  containers.podman.podman_tag:
+    image: docker.io/fernandezsalazarnieve/azure-vote-front:v1
+    target_names:
+      - "{{ acr_login_server }}/azure-vote-front:v1"
+
+- name: Push Azure Vote Frontend to ACR
+  containers.podman.podman_image:
+    name: "{{ acr_login_server }}/azure-vote-front:v1"
+    push: yes
+    push_args:
+      dest: "{{ acr_login_server }}/azure-vote-front:v1"
+
+- name: Pull Redis image (Bitnami Redis 6.0.8)
+  containers.podman.podman_image:
+    name: docker.io/bitnami/redis:6.0.8
+    state: present
+
+- name: Tag Redis image for ACR
+  containers.podman.podman_tag:
+    image: docker.io/bitnami/redis:6.0.8
+    target_names:
+      - "{{ acr_login_server }}/redis:6.0.8"
+
+- name: Push Redis image to ACR
+  containers.podman.podman_image:
+    name: "{{ acr_login_server }}/redis:6.0.8"
+    push: yes
+    push_args:
+      dest: "{{ acr_login_server }}/redis:6.0.8"

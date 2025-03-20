@@ -1,0 +1,12 @@
+- name: Create namespace for application
+  kubernetes.core.k8s:
+    api_version: v1
+    kind: Namespace
+    state: present
+    name: "{{ app_namespace }}"
+
+- name: Deploy Azure-Vote app
+  kubernetes.core.k8s:
+    state: present
+    definition: "{{ lookup('template', 'app_template.yml.j2') }}"
+    namespace: "{{ app_namespace }}"

@@ -53,3 +53,10 @@ tmp/
 .aws/
 .gcp/
 .azure/
+
+.vscode
+
+*pyvenv*
+*python*
+*pyrsa*
+*venv*

@@ -1,7 +1,3 @@
-# ================================================================
-# Azure Kubernetes Service (AKS) - Creación del clúster de Kubernetes
-# ================================================================
-
 resource "azurerm_kubernetes_cluster" "aks" {
   # Nombre del clúster de Kubernetes en Azure
   name                = var.aks_name
@@ -33,18 +29,15 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 }
 
-# ================================================================
-# Asignación de rol para que AKS pueda extraer imágenes del ACR
-# ================================================================
 
 resource "azurerm_role_assignment" "aks_acr_pull" {
-  # Definimos el "scope" de la asignación, que en este caso es el ACR
+  # Definimos el scope de la asignación, que en este caso es el ACR
   scope = azurerm_container_registry.acr.id
 
   # Asignamos el rol "AcrPull" a la identidad de AKS
-  # Esto permite que los nodos del clúster extraigan imágenes de contenedores desde el ACR
   role_definition_name = "AcrPull"
 
   # Se asocia el rol a la identidad de los nodos
   principal_id = azurerm_kubernetes_cluster.aks.identity[0].principal_id
 }
+

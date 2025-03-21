@@ -91,6 +91,10 @@ resource "azurerm_network_interface" "vm_nic" {
     private_ip_address_allocation = "Dynamic"
     public_ip_address_id          = azurerm_public_ip.vm_ip.id
   }
+
+  depends_on = [
+    azurerm_public_ip.vm_ip
+  ]
 }
 
 # ================================================================
@@ -125,9 +129,6 @@ resource "azurerm_linux_virtual_machine" "vm" {
   # Asocia la NIC a la VM
   network_interface_ids = [azurerm_network_interface.vm_nic.id]
 
-  # Deshabilita la autenticación con contraseña
-  disable_password_authentication = true
-
   # Configuración de la clave SSH
   admin_ssh_key {
     username   = var.vm_admin_username
@@ -147,6 +148,10 @@ resource "azurerm_linux_virtual_machine" "vm" {
     sku       = "22_04-daily-lts-gen2"
     version   = "latest"
   }
+
+  depends_on = [
+    tls_private_key.ssh_key
+  ]
 }
 
 # ================================================================
@@ -157,8 +162,9 @@ resource "azurerm_public_ip" "vm_ip" {
   name                = "${var.project_name}-public-ip"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-  
+
   allocation_method   = "Static"
+  sku                 = "Basic"
 }
 
 # ================================================================

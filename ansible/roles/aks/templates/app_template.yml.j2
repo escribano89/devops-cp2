@@ -22,6 +22,8 @@ spec:
       labels:
         app: azure-vote-back
     spec:
+      imagePullSecrets:
+        - name: acr-secret
       containers:
       - name: azure-vote-back
         image: "{{ acr_login_server }}/redis:6.0.8"
@@ -68,9 +70,11 @@ spec:
       labels:
         app: azure-vote-front
     spec:
+      imagePullSecrets:
+        - name: acr-secret
       containers:
       - name: azure-vote-front
-        image: "{{ acr_login_server }}/azure-vote-front:latest"
+        image: "{{ acr_login_server }}/azure-vote-front:v1"
         ports:
         - containerPort: 80
         env:
@@ -79,8 +83,6 @@ spec:
             configMapKeyRef:
               name: azure-vote-config
               key: REDIS
-      imagePullSecrets:
-        - name: acr-secret
 
 ---
 apiVersion: v1

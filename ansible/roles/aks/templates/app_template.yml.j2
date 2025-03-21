@@ -7,6 +7,21 @@ data:
   REDIS: "redis"
 
 ---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-pvc
+  namespace: {{ app_namespace }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -37,9 +52,11 @@ spec:
           name: redis-storage
       volumes:
       - name: redis-storage
-        emptyDir: {}
+        persistentVolumeClaim:
+          claimName: redis-pvc
 
 ---
+
 apiVersion: v1
 kind: Service
 metadata:
@@ -55,6 +72,7 @@ spec:
   type: ClusterIP
 
 ---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -85,6 +103,7 @@ spec:
               key: REDIS
 
 ---
+
 apiVersion: v1
 kind: Service
 metadata:
